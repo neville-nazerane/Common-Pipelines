@@ -41,7 +41,8 @@ stages:
             installationPath: $(Agent.ToolsDirectory)/dotnet
         
         - ${{ each step in parameters.preBuildSteps  }}
-            - ${{ step }}
+            - ${{ each pair in step }}
+              - ${{ pair.value }}
 
         - task: DotNetCoreCLI@2
           inputs:
