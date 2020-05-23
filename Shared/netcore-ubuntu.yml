@@ -40,9 +40,9 @@ stages:
             version: 5.0.0-preview.4.20251.1
             installationPath: $(Agent.ToolsDirectory)/dotnet
         
-        - ${{ each step in parameters.preBuildSteps  }}
-            - ${{ each pair in step }}
-              - ${{ pair.value }}
+        - ${{ each step in parameters.preBuildSteps  }}:
+            - ${{ each pair in step }}:
+                ${{ pair.key }}: ${{ pair.value }}
 
         - task: DotNetCoreCLI@2
           inputs:
