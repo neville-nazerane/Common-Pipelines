@@ -1,4 +1,8 @@
 
+
+pool:
+  vmImage: 'ubuntu-latest'
+
 parameters:
 
   - name: usePreRelease
@@ -22,9 +26,6 @@ parameters:
     
   - name: configs
     type: object
-
-pool:
-  vmImage: 'ubuntu-latest'
 
 stages:
   - stage: CI
