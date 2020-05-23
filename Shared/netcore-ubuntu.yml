@@ -35,6 +35,7 @@ stages:
           condition: ${{ parameters.usePreRelease }}
           inputs:
             packageType: sdk
+            includePreviewVersions: true
             version: 5.0.0-preview.4.20251.1
             installationPath: $(Agent.ToolsDirectory)/dotnet
         
