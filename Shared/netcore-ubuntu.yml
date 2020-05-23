@@ -1,0 +1,121 @@
+
+parameters:
+
+  - name: usePreRelease
+    type: boolean
+    default: false
+
+  - name: preBuildSteps
+    type: stepList
+
+  - name: projectPath
+    type: string
+
+  - name: serviceName
+    type: string
+
+  - name: tempFolderName
+    type: string
+
+  - name: service
+    type: object
+    
+  - name: configs
+    type: object
+
+pool:
+  vmImage: 'ubuntu-18.04'
+
+stages:
+  - stage: CI
+    jobs:
+      - job: DotNet
+        steps:
+
+        - task: UseDotNet@2
+          displayName: 'Use .NET Core sdk'
+          condition: ${{ parameters.usePreRelease }}
+          inputs:
+            packageType: sdk
+            version: 5.0.0-preview.4.20251.1
+            installationPath: $(Agent.ToolsDirectory)/dotnet
+        
+        - ${{ each step in parameters.preBuildSteps  }}
+            - ${{ step }}
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'publish'
+            zipAfterPublish: true
+            projects: 'src/Socially.WebAPI'
+            arguments: '-o $(Build.ArtifactStagingDirectory)/toDeploy'
+
+        - script: |
+            cp pipelines/linux.service $(Build.ArtifactStagingDirectory)/toDeploy
+          displayName: 'Copy Linux Service'
+
+        - task: PublishBuildArtifacts@1
+          displayName: 'Prep for release'
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'drop'
+            publishLocation: 'Container'
+
+  - stage: DeployDev
+    displayName: 'Deploy to Development'
+
+    jobs:
+      - deployment: ShowConfig
+        environment: 'Development'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+
+                - script: |
+                    mkdir $(Pipeline.Workspace)/prep
+                    cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
+                    cd $(Pipeline.Workspace)/prep
+                    sed -i 's/#{service.port}#/$(service.port)/' linux.service
+                    sed -i 's/#{service.dll}#/$(service.dll)/' linux.service
+                    sed -i 's/#{service.directory}#/$(service.directory)/g' linux.service
+                  displayName: Copy service file
+                
+                - ${{ each config in parameters.configs }}:
+                  - script: 'echo "Environment=${{ config.key }}=''${{ config.value }}''" >> $(Pipeline.Workspace)/prep/linux.service'
+                    displayName: Adding configuration for ${{ config.key }}
+
+                - task: CopyFilesOverSSH@0
+                  displayName: 'Upload files to server'
+                  inputs:
+                    sshEndpoint: 'websites'
+                    sourceFolder: '$(Pipeline.Workspace)/prep'
+                    contents: '**'
+                    targetFolder: $(tempFolderName)
+                    cleanTargetFolder: true
+                    readyTimeout: '20000'
+
+                - task: SSH@0
+                  displayName: 'SSH in and setup website'
+                  inputs:
+                    sshEndpoint: 'websites'
+                    runOptions: 'inline'
+                    inline: |
+                      cd $(tempFolderName)
+                      sudo rm -rf $(service.directory)
+                      sudo unzip Socially.WebAPI.zip -d $(service.directory)
+
+                      sudo mv linux.service /etc/systemd/system/$(serviceName).service -f
+
+                      sudo systemctl enable $(serviceName).service 
+                      sudo systemctl stop $(serviceName).service 
+                      sudo systemctl start $(serviceName).service
+
+                      cd ..
+                    readyTimeout: '20000'
+
+                - script: rm -rf $(Pipeline.Workspace)/prep
+                  displayName: Removing Prep
+                
+            
+    
