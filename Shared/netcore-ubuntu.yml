@@ -12,9 +12,6 @@ parameters:
   - name: projectPath
     type: string
 
-  - name: serviceName
-    type: string
-
   - name: tempFolderName
     type: string
 
@@ -73,19 +70,12 @@ stages:
               steps:
 
                 - script: |
-                   echo ${{ parameters.service.port }}
-                   exit 90
-                  displayName: Show me params
-                  continueOnError: false
-                  failOnStderr: true
-
-                - script: |
                     mkdir $(Pipeline.Workspace)/prep
                     cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
                     cd $(Pipeline.Workspace)/prep
-                    sed -i 's/#{service.port}#/$(service.port)/' linux.service
-                    sed -i 's/#{service.dll}#/$(service.dll)/' linux.service
-                    sed -i 's/#{service.directory}#/$(service.directory)/g' linux.service
+                    sed -i 's/#{service.port}#/${{ parameters.service.port }}/' linux.service
+                    sed -i 's/#{service.dll}#/${{ parameters.service.dll }}/' linux.service
+                    sed -i 's/#{service.directory}#/${{ parameters.service.directory }}/g' linux.service
                   displayName: Copy service file
                 
                 - ${{ each config in parameters.configs }}:
@@ -98,7 +88,7 @@ stages:
                     sshEndpoint: 'websites'
                     sourceFolder: '$(Pipeline.Workspace)/prep'
                     contents: '**'
-                    targetFolder: $(tempFolderName)
+                    targetFolder: ${{ parameters.tempFolderName }}
                     cleanTargetFolder: true
                     readyTimeout: '20000'
 
@@ -108,15 +98,15 @@ stages:
                     sshEndpoint: 'websites'
                     runOptions: 'inline'
                     inline: |
-                      cd $(tempFolderName)
-                      sudo rm -rf $(service.directory)
-                      sudo unzip Socially.WebAPI.zip -d $(service.directory)
+                      cd ${{ parameters.tempFolderName }}
+                      sudo rm -rf ${{ parameters.service.directory }}
+                      sudo unzip Socially.WebAPI.zip -d ${{ parameters.service.directory }}
 
-                      sudo mv linux.service /etc/systemd/system/$(serviceName).service -f
+                      sudo mv linux.service /etc/systemd/system/${{ parameters.service.fileName }}.service -f
 
-                      sudo systemctl enable $(serviceName).service 
-                      sudo systemctl stop $(serviceName).service 
-                      sudo systemctl start $(serviceName).service
+                      sudo systemctl enable ${{ parameters.service.fileName }}.service 
+                      sudo systemctl stop ${{ parameters.service.fileName }}.service 
+                      sudo systemctl start ${{ parameters.service.fileName }}.service
 
                       cd ..
                     readyTimeout: '20000'
