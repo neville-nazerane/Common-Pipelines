@@ -81,10 +81,9 @@ stages:
                     sed -i 's/#{service.directory}#/${{ parameters.service.directory }}/g' linux.service
                   displayName: Copy service file
                 
-                - script: |
-                    ${{ each config in parameters.configs }}:
-                      echo "Environment=${{ config.key }}=''${{ config.value }}''" >> $(Pipeline.Workspace)/prep/linux.service
-                  displayName: Adding configuration for ${{ config.key }}
+                - ${{ each config in parameters.configs }}:
+                  - script: 'echo "Environment=${{ config.key }}=''${{ config.value }}''" >> $(Pipeline.Workspace)/prep/linux.service'
+                    displayName: Adding configuration for ${{ config.key }}
 
                 - script: |
                     cd prep
