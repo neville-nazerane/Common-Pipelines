@@ -44,7 +44,7 @@ stages:
           inputs:
             command: 'publish'
             zipAfterPublish: true
-            projects: 'src/Socially.WebAPI'
+            projects: ${{ parameters.projectPath }}
             arguments: '-o $(Build.ArtifactStagingDirectory)/toDeploy'
 
         - script: |
@@ -72,8 +72,6 @@ stages:
             deploy:
               steps:
 
-                - script: echo 'hello neville' > hi.txt
-
                 - script: |
                     mkdir $(Pipeline.Workspace)/prep
                     cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
@@ -87,37 +85,19 @@ stages:
                   - script: 'echo "Environment=${{ config.key }}=''${{ config.value }}''" >> $(Pipeline.Workspace)/prep/linux.service'
                     displayName: Adding configuration for ${{ config.key }}
 
-                - task: CopyFilesOverSSH@0
-                  displayName: 'Upload files to server'
-                  inputs:
-                    sshEndpoint: 'websites'
-                    sourceFolder: '$(Pipeline.Workspace)/prep'
-                    contents: '**'
-                    targetFolder: ${{ parameters.tempFolderName }}
-                    cleanTargetFolder: true
-                    readyTimeout: '20000'
+                - script: |
+                    cd prep
+                    sudo rm -rf ${{ parameters.service.directory }}
+                    sudo unzip Socially.WebAPI.zip -d ${{ parameters.service.directory }}
 
-                - task: SSH@0
-                  displayName: 'SSH in and setup website'
-                  inputs:
-                    sshEndpoint: 'websites'
-                    runOptions: 'inline'
-                    inline: |
-                      cd ${{ parameters.tempFolderName }}
-                      sudo rm -rf ${{ parameters.service.directory }}
-                      sudo unzip Socially.WebAPI.zip -d ${{ parameters.service.directory }}
+                    sudo mv linux.service /etc/systemd/system/${{ parameters.service.name }}.service -f
 
-                      sudo mv linux.service /etc/systemd/system/${{ parameters.service.name }}.service -f
+                    sudo systemctl enable ${{ parameters.service.name }}.service 
+                    sudo systemctl stop ${{ parameters.service.name }}.service 
+                    sudo systemctl start ${{ parameters.service.name }}.service
 
-                      sudo systemctl enable ${{ parameters.service.name }}.service 
-                      sudo systemctl stop ${{ parameters.service.name }}.service 
-                      sudo systemctl start ${{ parameters.service.name }}.service
-
-                      cd ..
-                    readyTimeout: '20000'
-
-                - script: rm -rf $(Pipeline.Workspace)/prep
-                  displayName: Removing Prep
+                    cd ..
+                    rm -rf $(Pipeline.Workspace)/prep
                 
             
     
