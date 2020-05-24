@@ -73,7 +73,7 @@ stages:
               steps:
 
                 - script: |
-                   echo $(service.port)
+                   echo ${{ service.port }}
                    exit 90
                   displayName: Show me params
                   continueOnError: false
