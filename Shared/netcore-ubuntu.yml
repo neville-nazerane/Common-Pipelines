@@ -73,6 +73,13 @@ stages:
               steps:
 
                 - script: |
+                   echo $(service.port)
+                   exit 90
+                  displayName: Show me params
+                  continueOnError: false
+                  failOnStderr: true
+
+                - script: |
                     mkdir $(Pipeline.Workspace)/prep
                     cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
                     cd $(Pipeline.Workspace)/prep
