@@ -102,11 +102,11 @@ stages:
                       sudo rm -rf ${{ parameters.service.directory }}
                       sudo unzip Socially.WebAPI.zip -d ${{ parameters.service.directory }}
 
-                      sudo mv linux.service /etc/systemd/system/${{ parameters.service.fileName }}.service -f
+                      sudo mv linux.service /etc/systemd/system/${{ parameters.service.name }}.service -f
 
-                      sudo systemctl enable ${{ parameters.service.fileName }}.service 
-                      sudo systemctl stop ${{ parameters.service.fileName }}.service 
-                      sudo systemctl start ${{ parameters.service.fileName }}.service
+                      sudo systemctl enable ${{ parameters.service.name }}.service 
+                      sudo systemctl stop ${{ parameters.service.name }}.service 
+                      sudo systemctl start ${{ parameters.service.name }}.service
 
                       cd ..
                     readyTimeout: '20000'
