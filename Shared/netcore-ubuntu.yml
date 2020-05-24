@@ -63,11 +63,16 @@ stages:
 
     jobs:
       - deployment: ShowConfig
-        environment: 'Development'
+        environment:
+          name: Development
+          resourceType: VirtualMachine
+          resourceName: websites
         strategy:
           runOnce:
             deploy:
               steps:
+
+                - script: echo 'hello neville' > hi.txt
 
                 - script: |
                     mkdir $(Pipeline.Workspace)/prep
