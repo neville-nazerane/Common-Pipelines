@@ -41,6 +41,7 @@ stages:
                 ${{ pair.key }}: ${{ pair.value }}
 
         - task: DotNetCoreCLI@2
+          displayName: Publish web app
           inputs:
             command: 'publish'
             zipAfterPublish: true
@@ -49,7 +50,7 @@ stages:
 
         - script: |
             cp pipelines/linux.service $(Build.ArtifactStagingDirectory)/toDeploy
-          displayName: 'Copy Linux Service'
+          displayName: Copy Linux Service
 
         - task: PublishBuildArtifacts@1
           displayName: 'Prep for release'
@@ -62,7 +63,8 @@ stages:
     displayName: 'Deploy to Development'
 
     jobs:
-      - deployment: ShowConfig
+      - deployment: DevDeploy
+        displayName: Deploy to Development VM
         environment:
           name: Development
           resourceType: VirtualMachine
