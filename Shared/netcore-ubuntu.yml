@@ -86,7 +86,7 @@ stages:
                     displayName: Adding configuration for ${{ config.key }}
 
                 - script: |
-                    cd prep
+                    cd $(Pipeline.Workspace)/prep
                     sudo rm -rf ${{ parameters.service.directory }}
                     sudo unzip Socially.WebAPI.zip -d ${{ parameters.service.directory }}
 
