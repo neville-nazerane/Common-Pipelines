@@ -19,7 +19,7 @@ parameters:
     type: string
 
   - name: destDirectory
-    type: string
+    type: string 
 
   - name: service
     type: object
