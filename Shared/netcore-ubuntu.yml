@@ -15,6 +15,12 @@ parameters:
   - name: tempFolderName
     type: string
 
+  - name: projectName
+    type: string
+
+  - name: destDirectory
+    type: string
+
   - name: service
     type: object
     
@@ -89,8 +95,8 @@ stages:
 
                 - script: |
                     cd $(Pipeline.Workspace)/prep
-                    sudo rm -rf ${{ parameters.service.directory }}
-                    sudo unzip Socially.WebAPI.zip -d ${{ parameters.service.directory }}
+                    sudo rm -rf ${{ destDirectory }}
+                    sudo unzip ${{ projectName }}.zip -d ${{ destDirectory }}
 
                     sudo mv linux.service /etc/systemd/system/${{ parameters.service.name }}.service -f
 
