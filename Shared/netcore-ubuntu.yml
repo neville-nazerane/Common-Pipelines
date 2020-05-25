@@ -11,9 +11,6 @@ parameters:
   - name: projectPath
     type: string
 
-  - name: tempFolderName
-    type: string
-
   - name: projectName
     type: string
 
