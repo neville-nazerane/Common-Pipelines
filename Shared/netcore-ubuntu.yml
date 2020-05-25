@@ -104,7 +104,7 @@ stages:
                     mkdir $(Pipeline.Workspace)/prep
                     cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
                     cd $(Pipeline.Workspace)/prep
-                    echo ${{ serviceTemplate }} > $(Pipeline.Workspace)/prep/linux.service
+                    echo ${{ parameters.serviceTemplate }} > $(Pipeline.Workspace)/prep/linux.service
                   displayName: Copy service file
                 
                 - ${{ each config in parameters.configs }}:
@@ -113,8 +113,8 @@ stages:
 
                 - script: |
                     cd $(Pipeline.Workspace)/prep
-                    sudo rm -rf ${{ destDirectory }}
-                    sudo unzip ${{ projectName }}.zip -d ${{ destDirectory }}
+                    sudo rm -rf ${{ parameters.destDirectory }}
+                    sudo unzip ${{ parameters.projectName }}.zip -d ${{ parameters.destDirectory }}
 
                     sudo mv linux.service /etc/systemd/system/${{ parameters.service.name }}.service -f
 
