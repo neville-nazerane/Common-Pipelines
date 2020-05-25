@@ -1,5 +1,4 @@
 
-
 parameters:
 
   - name: usePreRelease
@@ -21,11 +20,33 @@ parameters:
   - name: destDirectory
     type: string 
 
-  - name: service
-    type: object
+  - name: port
+    type: string
     
   - name: configs
     type: object
+
+  - name: service
+    type: object
+
+  - name: serviceTemplate
+    type: string
+    default: |
+      [Unit]
+      Description=${{ service.description }}
+
+      [Install]
+      WantedBy=multi-user.target
+
+      [Service]
+      WorkingDirectory=${{ destDirectory }}
+      ExecStart=/usr/bin/dotnet ${{ destDirectory }}/${{ projectName }}.dll --urls http://localhost:${{ service.port }}
+      Restart=always
+      # Restart service after 10 seconds if the dotnet service crashes:
+      RestartSec=10
+      KillSignal=SIGINT
+      SyslogIdentifier=${{ service.identifier }}
+      User=www-data
 
 stages:
   - stage: CI
@@ -54,12 +75,12 @@ stages:
             projects: ${{ parameters.projectPath }}
             arguments: '-o $(Build.ArtifactStagingDirectory)/toDeploy'
 
-        - script: |
-            cp pipelines/linux.service $(Build.ArtifactStagingDirectory)/toDeploy
-          displayName: Copy Linux Service
+        # - script: |
+        #     cp pipelines/linux.service $(Build.ArtifactStagingDirectory)/toDeploy
+        #   displayName: Copy Linux Service
 
         - task: PublishBuildArtifacts@1
-          displayName: 'Prep for release'
+          displayName: Prep for release
           inputs:
             PathtoPublish: '$(Build.ArtifactStagingDirectory)'
             ArtifactName: 'drop'
@@ -84,9 +105,7 @@ stages:
                     mkdir $(Pipeline.Workspace)/prep
                     cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
                     cd $(Pipeline.Workspace)/prep
-                    sed -i 's/#{service.port}#/${{ parameters.service.port }}/' linux.service
-                    sed -i 's/#{service.dll}#/${{ parameters.service.dll }}/' linux.service
-                    sed -i 's/#{service.directory}#/${{ parameters.service.directory }}/g' linux.service
+                    echo ${{ serviceTemplate }} > $(Pipeline.Workspace)/prep/linux.service
                   displayName: Copy service file
                 
                 - ${{ each config in parameters.configs }}:
