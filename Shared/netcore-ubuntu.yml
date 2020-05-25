@@ -104,7 +104,7 @@ stages:
                     mkdir $(Pipeline.Workspace)/prep
                     cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
                     cd $(Pipeline.Workspace)/prep
-                    echo ${{ parameters.serviceTemplate }} > $(Pipeline.Workspace)/prep/linux.service
+                    echo $(serviceTemplate) > $(Pipeline.Workspace)/prep/linux.service
                   displayName: Copy service file
                 
                 - ${{ each config in parameters.configs }}:
