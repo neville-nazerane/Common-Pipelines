@@ -64,7 +64,7 @@ stages:
             - ${{ each pair in step }}:
                 ${{ pair.key }}: ${{ pair.value }}
 
-        - script: dontnet publish ${{ parameters.projectPath }} -c release -o published
+        - script: dotnet publish ${{ parameters.projectPath }} -c release -o published
           displayName: Publishing web app
 
         - task: ArchiveFiles@2
