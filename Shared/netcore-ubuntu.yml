@@ -74,8 +74,6 @@ stages:
             archiveFile: $(Build.ArtifactStagingDirectory)/${{ parameters.projectName }}.zip
             verbose: true
 
-        - script: echo "$(serviceTemplate)" > $(Pipeline.Workspace)/linux.service
-          displayName: Generate service file
 
         - task: PublishBuildArtifacts@1
           displayName: Prep for release
@@ -98,6 +96,9 @@ stages:
           runOnce:
             deploy:
               steps:
+
+                - script: echo "$(serviceTemplate)" > $(Pipeline.Workspace)/linux.service
+                  displayName: Generate service file
                 
                 - ${{ each config in parameters.configs }}:
                   - script: 'echo "Environment=${{ config.key }}=''${{ config.value }}''" >> $(Pipeline.Workspace)/drop/linux.service'
