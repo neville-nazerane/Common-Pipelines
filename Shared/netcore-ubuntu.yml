@@ -99,20 +99,12 @@ stages:
           runOnce:
             deploy:
               steps:
-
-                - script: |
-                    mkdir $(Pipeline.Workspace)/prep
-                    cp -a $(Pipeline.Workspace)/drop/toDeploy/. $(Pipeline.Workspace)/prep
-                    cd $(Pipeline.Workspace)/prep
-                    echo "$(serviceTemplate)" > $(Pipeline.Workspace)/prep/linux.service
-                  displayName: Copy service file
                 
                 - ${{ each config in parameters.configs }}:
-                  - script: 'echo "Environment=${{ config.key }}=''${{ config.value }}''" >> $(Pipeline.Workspace)/prep/linux.service'
+                  - script: 'echo "Environment=${{ config.key }}=''${{ config.value }}''" >> $(Pipeline.Workspace)/drop/toDeploy/linux.service'
                     displayName: Adding configuration for ${{ config.key }}
 
                 - script: |
-                    cd $(Pipeline.Workspace)/prep
                     echo 'showing'
                     ls
                     echo 'finished showing'
@@ -126,8 +118,9 @@ stages:
                     sudo systemctl start ${{ parameters.service.name }}.service
 
                     cd ..
-                    rm -rf $(Pipeline.Workspace)/prep
+                    rm -rf $(Pipeline.Workspace)/drop/toDeploy
                   displayName: Updating website
+                  workingDirectory: $(Pipeline.Workspace)/drop/toDeploy
                 
             
     
