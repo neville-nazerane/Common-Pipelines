@@ -71,6 +71,7 @@ stages:
           displayName: Compress before publish
           inputs:
             rootFolderOrFile: published
+            includeRootFolder: false
             archiveFile: $(Build.ArtifactStagingDirectory)/${{ parameters.projectName }}.zip
             verbose: true
 
