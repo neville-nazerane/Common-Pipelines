@@ -97,7 +97,7 @@ stages:
             deploy:
               steps:
 
-                - script: echo "$(serviceTemplate)" > $(Pipeline.Workspace)/linux.service
+                - script: echo "$(serviceTemplate)" > $(Pipeline.Workspace)/drop/linux.service
                   displayName: Generate service file
                 
                 - ${{ each config in parameters.configs }}:
