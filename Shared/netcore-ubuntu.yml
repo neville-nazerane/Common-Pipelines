@@ -113,8 +113,11 @@ stages:
 
                 - script: |
                     cd $(Pipeline.Workspace)/prep
+                    echo 'showing'
+                    ls
+                    echo 'finished showing'
                     sudo rm -rf ${{ parameters.destDirectory }}
-                    sudo unzip $(Pipeline.Workspace)/prep/*.zip -d ${{ parameters.destDirectory }}
+                    sudo unzip *.zip -d ${{ parameters.destDirectory }}
 
                     sudo mv linux.service /etc/systemd/system/${{ parameters.service.name }}.service -f
 
