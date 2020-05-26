@@ -69,6 +69,7 @@ stages:
           inputs:
             command: 'publish'
             zipAfterPublish: true
+            configuration: release
             projects: ${{ parameters.projectPath }}
             arguments: '-o $(Build.ArtifactStagingDirectory)/toDeploy'
 
