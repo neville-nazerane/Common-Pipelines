@@ -122,6 +122,8 @@ stages:
                     rm -rf *
                   displayName: Updating website
                   workingDirectory: $(Pipeline.Workspace)/drop
-                
+      
+                - task: DeleteFiles@1
+                  displayName: Clean up
             
     
