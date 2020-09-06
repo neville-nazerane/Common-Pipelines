@@ -26,6 +26,12 @@ parameters:
 
   - name: service
     type: object
+    
+  - name: deployment
+    type: object
+    default: 
+      name: Development
+      resourceName: websites
 
 variables:
     serviceTemplate: |
@@ -90,9 +96,9 @@ stages:
       - deployment: DevDeploy
         displayName: Deploy to Development VM
         environment:
-          name: Development
+          name: ${{ parameters.deployment.name }}
           resourceType: VirtualMachine
-          resourceName: websites
+          resourceName: ${{ parameters.deployment.resourceName }}
         strategy:
           runOnce:
             deploy:
