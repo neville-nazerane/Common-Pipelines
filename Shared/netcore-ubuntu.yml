@@ -9,6 +9,10 @@ parameters:
     type: stepList
     default: []
 
+  - name: variableGroups
+    type: object
+    default: []
+
   - name: projectPath
     type: string
 
@@ -28,7 +32,12 @@ parameters:
     type: object
 
 variables:
-    serviceTemplate: |
+  - ${{ each grp in parameters.variableGroups  }}:
+    - group: ${{ grp }}
+
+  - name: serviceTemplate
+    readonly: true
+    value: |
       [Unit]
       Description=${{ parameters.service.description }}
 
