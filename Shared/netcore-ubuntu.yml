@@ -31,29 +31,7 @@ parameters:
   - name: service
     type: object
 
-variables:
-  - ${{ each grp in parameters.variableGroups  }}:
-    - group: ${{ grp }}
-
-  - name: serviceTemplate
-    readonly: true
-    value: |
-      [Unit]
-      Description=${{ parameters.service.description }}
-
-      [Install]
-      WantedBy=multi-user.target
-
-      [Service]
-      WorkingDirectory=${{ parameters.destDirectory }}
-      ExecStart=/usr/bin/dotnet ${{ parameters.destDirectory }}/${{ parameters.projectName }}.dll --urls http://localhost:${{ parameters.port }}
-      Restart=always
-      # Restart service after 10 seconds if the dotnet service crashes:
-      RestartSec=10
-      KillSignal=SIGINT
-      SyslogIdentifier=${{ parameters.service.identifier }}
-      User=www-data
-
+    
 stages:
   - stage: CI
     jobs:
@@ -93,6 +71,23 @@ stages:
             publishLocation: 'Container'
 
   - stage: DeployDev
+    variables: 
+      serviceTemplate: |
+        [Unit]
+        Description=${{ parameters.service.description }}
+
+        [Install]
+        WantedBy=multi-user.target
+
+        [Service]
+        WorkingDirectory=${{ parameters.destDirectory }}
+        ExecStart=/usr/bin/dotnet ${{ parameters.destDirectory }}/${{ parameters.projectName }}.dll --urls http://localhost:${{ parameters.port }}
+        Restart=always
+        # Restart service after 10 seconds if the dotnet service crashes:
+        RestartSec=10
+        KillSignal=SIGINT
+        SyslogIdentifier=${{ parameters.service.identifier }}
+        User=www-data
     displayName: 'Deploy to Development'
 
     jobs:
