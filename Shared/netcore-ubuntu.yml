@@ -27,9 +27,8 @@ parameters:
   - name: service
     type: object
 
-  - name: serviceTemplate
-    type: string
-    default: |
+variables:
+    serviceTemplate: |
       [Unit]
       Description=${{ parameters.service.description }}
 
@@ -99,7 +98,7 @@ stages:
             deploy:
               steps:
 
-                - script: echo "${{ parameters.serviceTemplate }})" > $(Pipeline.Workspace)/drop/linux.service
+                - script: echo "$(serviceTemplate)" > $(Pipeline.Workspace)/drop/linux.service
                   displayName: Generate service file
                 
                 - ${{ each config in parameters.configs }}:
