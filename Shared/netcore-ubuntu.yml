@@ -34,14 +34,14 @@ stages:
       - job: Compile
         steps:
 
-        - task: UseDotNet@2
-          displayName: 'Use .NET Core sdk'
-          condition: ${{ parameters.usePreRelease }}
-          inputs:
-            packageType: sdk
-            includePreviewVersions: true
-            version: 5.0.100-rc.2.20479.15
-            installationPath: $(Agent.ToolsDirectory)/dotnet
+        # - task: UseDotNet@2
+        #   displayName: 'Use .NET Core sdk'
+        #   condition: ${{ parameters.usePreRelease }}
+        #   inputs:
+        #     packageType: sdk
+        #     includePreviewVersions: true
+        #     version: 5.0.100-rc.2.20479.15
+        #     installationPath: $(Agent.ToolsDirectory)/dotnet
         
         - ${{ each step in parameters.preBuildSteps  }}:
             - ${{ each pair in step }}:
