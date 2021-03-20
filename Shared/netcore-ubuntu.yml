@@ -5,6 +5,10 @@ parameters:
     type: boolean
     default: false
 
+  - name: useVersion
+    type: string
+    default: ''
+    
   - name: preBuildSteps
     type: stepList
     default: []
