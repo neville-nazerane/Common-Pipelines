@@ -40,7 +40,16 @@ stages:
           inputs:
             packageType: sdk
             includePreviewVersions: true
-            version: 5.0.101
+            version: 6.0.100-preview.2
+            installationPath: $(Agent.ToolsDirectory)/dotnet
+            
+        - task: UseDotNet@2
+          displayName: 'Use .NET Core sdk'
+          condition: ${{ parameters.useVersion }}
+          inputs:
+            packageType: sdk
+            includePreviewVersions: true
+            version: ${{ parameters.useVersion }}
             installationPath: $(Agent.ToolsDirectory)/dotnet
         
         - ${{ each step in parameters.preBuildSteps  }}:
