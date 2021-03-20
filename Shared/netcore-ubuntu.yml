@@ -49,7 +49,7 @@ stages:
             
         - task: UseDotNet@2
           displayName: 'Use .NET Core sdk'
-          condition: ${{ parameters.useVersion }}
+          condition: ${{ ne(parameters.useVersion, '') }}
           inputs:
             packageType: sdk
             includePreviewVersions: true
